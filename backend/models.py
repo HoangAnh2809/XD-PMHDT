@@ -1,3 +1,4 @@
+# Mã nguồn thực tế từ backend/admin_service/models.py
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.dialects.postgresql import UUID

@@ -1,5 +1,10 @@
 #  Hệ thống Quản lý Bảo dưỡng Xe Điện (EV Maintenance Management System)
 
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18.2+-blue.svg)](https://reactjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Container-Docker-blue.svg)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Hệ thống microservice cho trung tâm bảo dưỡng xe điện: quản lý khách hàng/xe, lịch hẹn, kho phụ tùng, nhân sự, thanh toán, thông báo, và cổng API hợp nhất.
 
@@ -602,7 +607,7 @@ docker logs ev_notification_service --tail 100
 
 1. Fork repository này
 2. Tạo feature branch: `git checkout -b feature/AmazingFeature`
-3. Commit changes: `git commit -m 'Add some AmazingFeature'`
+3. Commit changes: `git commit -m 'Add some AmazingFeature'`  
 4. Push to branch: `git push origin feature/AmazingFeature` 
 5. Tạo Pull Request với mô tả chi tiết
 
