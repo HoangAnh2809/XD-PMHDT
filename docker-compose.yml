@@ -1,0 +1,244 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ev_maintenance_db
+    environment:
+      POSTGRES_USER: evadmin
+      POSTGRES_PASSWORD: evadmin123
+      POSTGRES_DB: ev_maintenance
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ev_network
+    restart: unless-stopped
+
+  # pgAdmin
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ev_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@evmaintenance.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - ev_network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: ev_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - ev_network
+    restart: unless-stopped
+
+  # API Gateway
+  api_gateway:
+    build:
+      context: ./backend
+      dockerfile: api_gateway/Dockerfile
+    container_name: ev_api_gateway
+    environment:
+      - DATABASE_URL=postgresql://evadmin:evadmin123@postgres:5432/ev_maintenance
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=evcare-2025-super-secret-key
+      - CUSTOMER_SERVICE_URL=http://customer_service:8001
+      - SERVICE_CENTER_URL=http://service_center:8002
+      - CHAT_SERVICE_URL=http://chat_service:8003
+      - NOTIFICATION_SERVICE_URL=http://notification_service:8004
+      - PAYMENT_SERVICE_URL=http://payment_service:8005
+      - ADMIN_SERVICE_URL=http://admin_service:8007
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/shared:/app/shared
+      - ./backend/api_gateway:/app
+    networks:
+      - ev_network
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Customer Service
+  customer_service:
+    build:
+      context: ./backend
+      dockerfile: customer_service/Dockerfile
+    container_name: ev_customer_service
+    environment:
+      - DATABASE_URL=postgresql://evadmin:evadmin123@postgres:5432/ev_maintenance
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=evcare-2025-super-secret-key
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend/shared:/app/shared
+      - ./backend/customer_service:/app
+    networks:
+      - ev_network
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Service Center Service
+  service_center:
+    build:
+      context: ./backend
+      dockerfile: service_center/Dockerfile
+    container_name: ev_service_center
+    environment:
+      - DATABASE_URL=postgresql://evadmin:evadmin123@postgres:5432/ev_maintenance
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=evcare-2025-super-secret-key
+      - API_GATEWAY_URL=http://api_gateway:8000
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./backend/shared:/app/shared
+      - ./backend/service_center:/app
+    networks:
+      - ev_network
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Chat Service (Real-time Chat & AI Assistant)
+  chat_service:
+    build:
+      context: ./backend/chat_service
+      dockerfile: Dockerfile
+    container_name: ev_chat_service
+    environment:
+      - DATABASE_URL=postgresql://evadmin:evadmin123@postgres:5432/ev_maintenance
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=evcare-2025-super-secret-key
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./backend/chat_service:/app
+    networks:
+      - ev_network
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Notification Service
+  notification_service:
+    build:
+      context: ./backend
+      dockerfile: notification_service/Dockerfile
+    container_name: ev_notification_service
+    environment:
+      - DATABASE_URL=postgresql://evadmin:evadmin123@postgres:5432/ev_maintenance
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=evcare-2025-super-secret-key
+      - API_GATEWAY_URL=http://api_gateway:8000
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=your-email@gmail.com
+      - SMTP_PASSWORD=your-app-password
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./backend/shared:/app/shared
+      - ./backend/notification_service:/app
+    networks:
+      - ev_network
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Payment Service
+  payment_service:
+    build:
+      context: ./backend
+      dockerfile: payment_service/Dockerfile
+    container_name: ev_payment_service
+    environment:
+      - DATABASE_URL=postgresql://evadmin:evadmin123@postgres:5432/ev_maintenance
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=evcare-2025-super-secret-key
+      - API_GATEWAY_URL=http://api_gateway:8000
+      - VNPAY_TMN_CODE=K7C2VBPL
+      - VNPAY_HASH_SECRET=2ZU9GR7SXJTG7FMSDNFKMHABGCKQZNX0
+      - VNPAY_RETURN_URL=http://localhost:8081/payment/return
+      - MOMO_PARTNER_CODE=your-momo-partner-code
+      - MOMO_ACCESS_KEY=your-momo-access-key
+      - MOMO_SECRET_KEY=your-momo-secret-key
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./backend/shared:/app/shared
+      - ./backend/payment_service:/app
+    networks:
+      - ev_network
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Admin Service (Admin Panel Backend)
+  admin_service:
+    build:
+      context: ./backend/admin_service
+      dockerfile: Dockerfile
+    container_name: ev_admin_service
+    environment:
+      - DATABASE_URL=postgresql://evadmin:evadmin123@postgres:5432/ev_maintenance
+      - SECRET_KEY=evcare-2025-super-secret-key
+    ports:
+      - "8007:8007"
+    volumes:
+      - ./backend/admin_service:/app
+    networks:
+      - ev_network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # Frontend React Application (Production - Static Files)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.production
+    container_name: ev_frontend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_ADMIN_API_URL=http://localhost:8007/api/admin
+    ports:
+      - "8081:80"
+    networks:
+      - ev_network
+    depends_on:
+      - api_gateway
+      - admin_service
+    restart: unless-stopped
+
+networks:
+  ev_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  redis_data:
