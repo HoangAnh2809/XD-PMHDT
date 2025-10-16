@@ -13,7 +13,7 @@ import logging
 from database import engine, Base, get_db
 from models import ChatSession, ChatMessage, ChatParticipant
 from schemas import (
-    ChatSessionCreate, ChatSessionResponse, 
+    ChatSessionCreate, ChatSessionResponse,
     ChatMessageCreate, ChatMessageResponse,
     AIRequest, AIResponse
 )
@@ -68,10 +68,10 @@ async def websocket_endpoint(
     if not user:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
-    
+
     # Accept WebSocket connection
     await manager.connect(websocket, session_id, user['user_id'])
-    
+
     try:
         # Send connection confirmation
         await manager.send_personal_message(
@@ -82,12 +82,12 @@ async def websocket_endpoint(
             },
             websocket
         )
-        
+
         while True:
             # Receive message from client
             data = await websocket.receive_text()
             message_data = json.loads(data)
-            
+
             # Save message to database
             db = next(get_db())
             # Ensure message_type uses lowercase enum values to match DB constraint
@@ -104,6 +104,7 @@ async def websocket_endpoint(
             )
             # Offload DB insert to thread to avoid blocking WebSocket loop
             import asyncio as _asyncio
+
             def _save_message():
                 db.add(new_message)
                 db.commit()
@@ -112,7 +113,7 @@ async def websocket_endpoint(
                 return new_message
 
             new_message = await _asyncio.to_thread(_save_message)
-            
+
             # Broadcast message to all participants in session
             await manager.broadcast_to_session(
                 session_id,
@@ -126,7 +127,7 @@ async def websocket_endpoint(
                     "metadata": new_message.message_metadata
                 }
             )
-            
+
             # If message is for AI assistant, get AI response
             if message_data.get('to_ai', False):
                 ai_response = await ai_service.get_response(
@@ -134,7 +135,7 @@ async def websocket_endpoint(
                     session_id=session_id,
                     user_context=user
                 )
-                
+
                 # Save AI response to database
                 ai_message = ChatMessage(
                     session_id=session_id,
@@ -145,6 +146,7 @@ async def websocket_endpoint(
                     message_metadata=ai_response.get('metadata', {})
                 )
                 # Save AI message in background thread
+
                 def _save_ai_message():
                     db_ai = next(get_db())
                     db_ai.add(ai_message)
@@ -154,7 +156,7 @@ async def websocket_endpoint(
                     return ai_message
 
                 ai_message = await _asyncio.to_thread(_save_ai_message)
-                
+
                 # Send AI response to client
                 await manager.broadcast_to_session(
                     session_id,
@@ -168,12 +170,13 @@ async def websocket_endpoint(
                         "metadata": ai_message.message_metadata
                     }
                 )
-            
+
             db.close()
-            
+
     except WebSocketDisconnect:
         manager.disconnect(websocket, session_id)
-        logger.info(f"User {user['user_id']} disconnected from session {session_id}")
+        logger.info(
+            f"User {user['user_id']} disconnected from session {session_id}")
     except Exception as e:
         logger.error(f"WebSocket error: {str(e)}")
         manager.disconnect(websocket, session_id)
@@ -214,7 +217,7 @@ def create_chat_session(
     db.add(new_session)
     db.commit()
     db.refresh(new_session)
-    
+
     # Add creator as participant
     participant = ChatParticipant(
         session_id=new_session.id,
@@ -224,7 +227,7 @@ def create_chat_session(
     )
     db.add(participant)
     db.commit()
-    
+
     return new_session
 
 
@@ -238,7 +241,7 @@ def get_my_sessions(
     sessions = db.query(ChatSession).join(ChatParticipant).filter(
         ChatParticipant.user_id == current_user['user_id']
     ).order_by(ChatSession.updated_at.desc()).all()
-    
+
     return sessions
 
 
@@ -249,20 +252,21 @@ def get_session(
     db: Session = Depends(get_db)
 ):
     """Get specific chat session details"""
-    session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
-    
+    session = db.query(ChatSession).filter(
+        ChatSession.id == session_id).first()
+
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    
+
     # Verify user is participant
     participant = db.query(ChatParticipant).filter(
         ChatParticipant.session_id == session_id,
         ChatParticipant.user_id == current_user['user_id']
     ).first()
-    
+
     if not participant:
         raise HTTPException(status_code=403, detail="Access denied")
-    
+
     return session
 
 
@@ -280,15 +284,15 @@ def get_session_messages(
         ChatParticipant.session_id == session_id,
         ChatParticipant.user_id == current_user['user_id']
     ).first()
-    
+
     if not participant:
         raise HTTPException(status_code=403, detail="Access denied")
-    
+
     # Get messages
     messages = db.query(ChatMessage).filter(
         ChatMessage.session_id == session_id
     ).order_by(ChatMessage.created_at.desc()).offset(offset).limit(limit).all()
-    
+
     return messages
 
 
@@ -308,10 +312,10 @@ async def send_message(
         ChatParticipant.session_id == session_id,
         ChatParticipant.user_id == current_user['user_id']
     ).first()
-    
+
     if not participant:
         raise HTTPException(status_code=403, detail="Access denied")
-    
+
     # Create message
     # Normalize incoming message_type to lowercase string
     msg_type = (message_data.message_type or 'text')
@@ -327,6 +331,7 @@ async def send_message(
     )
     # Offload DB write to background thread for REST fallback too
     import asyncio as _asyncio
+
     def _save_rest_message():
         db.add(new_message)
         db.commit()
@@ -334,12 +339,13 @@ async def send_message(
         return new_message
 
     new_message = await _asyncio.to_thread(_save_rest_message)
-    
+
     # Update session timestamp
-    session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+    session = db.query(ChatSession).filter(
+        ChatSession.id == session_id).first()
     session.updated_at = datetime.now()
     db.commit()
-    
+
     return new_message
 
 
@@ -353,29 +359,30 @@ def add_participant(
 ):
     """Add a participant to chat session"""
     # Verify session exists and user has permission
-    session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
-    
+    session = db.query(ChatSession).filter(
+        ChatSession.id == session_id).first()
+
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    
+
     # Check if requester is creator or admin
     requester = db.query(ChatParticipant).filter(
         ChatParticipant.session_id == session_id,
         ChatParticipant.user_id == current_user['user_id']
     ).first()
-    
+
     if not requester or (requester.role != 'creator' and current_user['role'] != 'admin'):
         raise HTTPException(status_code=403, detail="Permission denied")
-    
+
     # Check if user is already participant
     existing = db.query(ChatParticipant).filter(
         ChatParticipant.session_id == session_id,
         ChatParticipant.user_id == user_id
     ).first()
-    
+
     if existing:
         return {"message": "User is already a participant"}
-    
+
     # Add participant
     participant = ChatParticipant(
         session_id=session_id,
@@ -385,7 +392,7 @@ def add_participant(
     )
     db.add(participant)
     db.commit()
-    
+
     return {"message": "Participant added successfully"}
 
 
@@ -405,7 +412,7 @@ async def ask_ai(
         user_context=current_user,
         context=request.context
     )
-    
+
     # Optionally save to database if session_id provided
     if request.session_id:
         # Save user message
@@ -418,7 +425,7 @@ async def ask_ai(
             message_metadata=request.context or {}
         )
         db.add(user_message)
-        
+
         # Save AI response
         ai_message = ChatMessage(
             session_id=request.session_id,
@@ -430,7 +437,7 @@ async def ask_ai(
         )
         db.add(ai_message)
         db.commit()
-    
+
     return response
 
 
@@ -446,14 +453,14 @@ def get_session_participants(
         ChatParticipant.session_id == session_id,
         ChatParticipant.user_id == current_user['user_id']
     ).first()
-    
+
     if not participant:
         raise HTTPException(status_code=403, detail="Access denied")
-    
+
     participants = db.query(ChatParticipant).filter(
         ChatParticipant.session_id == session_id
     ).all()
-    
+
     return participants
 
 
@@ -464,11 +471,12 @@ def close_session(
     db: Session = Depends(get_db)
 ):
     """Close/end a chat session"""
-    session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
-    
+    session = db.query(ChatSession).filter(
+        ChatSession.id == session_id).first()
+
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    
+
     # Verify user permissions: allow if admin or staff (support), otherwise require creator
     participant = db.query(ChatParticipant).filter(
         ChatParticipant.session_id == session_id,
@@ -485,15 +493,15 @@ def close_session(
         # Non-staff users must be the creator to close
         if not participant or participant.role != 'creator':
             raise HTTPException(status_code=403, detail="Permission denied")
-    
+
     # Update session status
     session.status = 'closed'
     session.updated_at = datetime.now()
     db.commit()
-    
+
     # Disconnect all WebSocket connections
     manager.disconnect_session(session_id)
-    
+
     return {"message": "Session closed successfully"}
 
 
@@ -507,12 +515,12 @@ def get_all_active_sessions(
     # Only staff and admin can view all sessions
     if current_user['role'] not in ['staff', 'admin']:
         raise HTTPException(status_code=403, detail="Permission denied")
-    
+
     # Get all active sessions
     sessions = db.query(ChatSession).filter(
         ChatSession.status == 'active'
     ).order_by(ChatSession.updated_at.desc()).all()
-    
+
     return sessions
 
 
@@ -526,21 +534,22 @@ def join_session_as_staff(
     # Only staff and admin can join sessions
     if current_user['role'] not in ['staff', 'admin']:
         raise HTTPException(status_code=403, detail="Permission denied")
-    
+
     # Verify session exists
-    session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
+    session = db.query(ChatSession).filter(
+        ChatSession.id == session_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    
+
     # Check if staff is already a participant
     existing = db.query(ChatParticipant).filter(
         ChatParticipant.session_id == session_id,
         ChatParticipant.user_id == current_user['user_id']
     ).first()
-    
+
     if existing:
         return {"message": "Already joined this session", "participant_id": str(existing.id)}
-    
+
     # Add staff as participant
     participant = ChatParticipant(
         session_id=session_id,
@@ -549,7 +558,7 @@ def join_session_as_staff(
         role='support'
     )
     db.add(participant)
-    
+
     # Add system message
     # Use lowercase message_type to satisfy DB enum/check constraint
     system_message = ChatMessage(
@@ -560,10 +569,10 @@ def join_session_as_staff(
         content=f"Nhân viên hỗ trợ đã tham gia cuộc trò chuyện"
     )
     db.add(system_message)
-    
+
     db.commit()
     db.refresh(participant)
-    
+
     return {
         "message": "Successfully joined session",
         "participant_id": str(participant.id),
