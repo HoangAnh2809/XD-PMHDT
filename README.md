@@ -652,7 +652,7 @@ docker logs ev_notification_service --tail 100
 - **Database Tables**: 15+ core tables
 - **API Endpoints**: 50+ REST endpoints
 - **User Roles**: 4 (customer, staff, technician, admin)
-- **Payment Methods**: 3 (cash, VNPay, Momo)
+- **Payment Methods**: VNPay
 - **Container Count**: 11 Docker containers
 
 
