@@ -114,7 +114,7 @@
 }
 
 .btn-modern::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
@@ -173,7 +173,7 @@
 }
 
 .stat-card-modern::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -1103,9 +1103,21 @@
   animation: slideIn 0.3s ease-out;
 }
 
-.staff-card-modern:nth-child(1) { animation-delay: 0.05s; }
-.staff-card-modern:nth-child(2) { animation-delay: 0.1s; }
-.staff-card-modern:nth-child(3) { animation-delay: 0.15s; }
-.staff-card-modern:nth-child(4) { animation-delay: 0.2s; }
-.staff-card-modern:nth-child(5) { animation-delay: 0.25s; }
-.staff-card-modern:nth-child(6) { animation-delay: 0.3s; }
+.staff-card-modern:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.staff-card-modern:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.staff-card-modern:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.staff-card-modern:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.staff-card-modern:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.staff-card-modern:nth-child(6) {
+  animation-delay: 0.3s;
+}
