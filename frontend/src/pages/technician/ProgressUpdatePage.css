@@ -1,4 +1,4 @@
-/* ProgressUpdatePage.css */
+/* progressUpdatePage.css */
 .progress-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -7,7 +7,7 @@
   min-height: 100vh;
 }
 
-/* Loading and Empty States */
+/* loading and Empty States */
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -50,7 +50,7 @@
   opacity: 0.6;
 }
 
-/* Header */
+/* header */
 .progress-header {
   display: flex;
   justify-content: space-between;
@@ -90,7 +90,7 @@
   margin-left: 2rem;
 }
 
-/* Messages */
+/* messages */
 .message {
   padding: 1rem 1.5rem;
   border-radius: 8px;
