@@ -41,11 +41,11 @@ const ProgressUpdatePage = () => {
   const loadTaskDetails = async () => {
     setLoading(true);
     try {
-      // Load task details
+      // load task details
       const taskData = await technicianAPI.getTaskDetails(taskId);
       setTask(taskData);
 
-      // Load checklist if task is in progress or completed
+      // load checklist if task is in progress or completed
       if (taskData.status === 'in_progress' || taskData.status === 'completed') {
         try {
           const checklistData = await technicianAPI.getTaskChecklist(taskId);
@@ -55,7 +55,7 @@ const ProgressUpdatePage = () => {
         }
       }
 
-      // Load parts requests
+      // load parts requests
       try {
         const partsData = await technicianAPI.getPartsRequests({ task_id: taskId });
         setPartsRequests(partsData || []);
@@ -63,7 +63,7 @@ const ProgressUpdatePage = () => {
         console.log('No parts requests available');
       }
 
-      // Load progress history
+      // load progress history
       try {
         const historyData = await technicianAPI.getProgressHistory(taskId);
         setUpdateHistory(historyData.history || []);
