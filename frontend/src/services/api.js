@@ -4,7 +4,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // 30 seconds timeout
+  timeout: 30000, // 30 Seconds timeout
   headers: {
     'Content-Type': 'application/json',
   },
@@ -12,7 +12,7 @@ const api = axios.create({
 
 const silentApi = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // 30 seconds timeout
+  timeout: 30000, // 30 Seconds timeout
   headers: {
     'Content-Type': 'application/json',
   },
@@ -81,7 +81,7 @@ const silentRequest = async (requestFn) => {
   }
 };
 
-// Helper to remove null/undefined values from params before sending to server
+// Helper to remove null/Undefined values from params before sending to server
 const cleanParams = (params) => {
   if (!params) return {};
   const out = {};
