@@ -9,7 +9,7 @@ import AdminLayout from './components/AdminLayout';
 import StaffLayout from './components/StaffLayout';
 import FloatingChatButton from './components/FloatingChatButton';
 
-// Public Pages
+// public Pages
 import HomePage from './pages/public/HomePage';
 import ServicesPage from './pages/public/ServicesPage';
 import AboutPage from './pages/public/AboutPage';
@@ -17,16 +17,16 @@ import ContactPage from './pages/public/ContactPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 
-// Payment Pages
+// payment Pages
 import PaymentPageNew from './pages/PaymentPage';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentFailed from './pages/PaymentFailed';
 
-// Invoice Pages
+// invoice Pages
 import InvoiceListPage from './pages/InvoiceListPage';
 import InvoiceDetailPageNew from './pages/InvoiceDetailPage';
 
-// Customer Pages
+// customer Pages
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import VehiclesPage from './pages/customer/VehiclesPage';
 import ServiceHistoryPage from './pages/customer/ServiceHistoryPage';
@@ -38,7 +38,7 @@ import InvoiceDetailPage from './pages/customer/InvoiceDetailPage';
 import StaffInvoiceDetailPage from './pages/staff/InvoiceDetailPage';
 import ChatPage from './pages/customer/ChatPage';
 
-// Staff Pages
+// staff Pages
 import StaffDashboard from './pages/staff/StaffDashboard';
 import ManageAppointmentsPage from './pages/staff/ManageAppointmentsPage';
 import AppointmentForm from './pages/staff/AppointmentForm';
@@ -50,7 +50,7 @@ import ManageCustomersPage from './pages/staff/ManageCustomersPage';
 import StaffServicesPage from './pages/staff/StaffServicesPage';
 import ManageInvoicesPage from './pages/staff/ManageInvoicesPage';
 
-// Technician Pages
+// technician Pages
 import TechnicianDashboard from './pages/technician/TechnicianDashboard';
 import TechnicianTasksPage from './pages/technician/TechnicianTasksPage';
 import TaskDetailsPage from './pages/technician/TaskDetailsPage';
@@ -60,7 +60,7 @@ import PartsRequestPage from './pages/technician/PartsRequestPage';
 import ProgressUpdatePage from './pages/technician/ProgressUpdatePage';
 import CreateInvoicePage from './pages/technician/CreateInvoicePage';
 
-// Admin Pages
+// admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminBranchesPage from './pages/admin/AdminBranchesPage';
