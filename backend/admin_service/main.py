@@ -21,11 +21,11 @@ import sys
 import os
 import logging
 
-# Add parent directory to path for imports
+# add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-# Create tables
+# create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="EV Maintenance API Gateway", version="1.0.0")
@@ -44,7 +44,7 @@ app.add_middleware(
     max_age=3600,
 )
 
-# Additional CORS headers middleware
+# additional CORS headers middleware
 
 
 @app.middleware("http")
@@ -56,7 +56,7 @@ async def add_cors_headers(request, call_next):
     response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
 
-# Service URLs
+# service URLs
 CUSTOMER_SERVICE_URL = os.getenv(
     "CUSTOMER_SERVICE_URL", "http://localhost:8001")
 SERVICE_CENTER_URL = os.getenv("SERVICE_CENTER_URL", "http://localhost:8002")
@@ -94,10 +94,10 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
 
-    # Auto-generate username from email (part before @)
+    # auto-generate username from email (part before @)
     username = user_data.email.split('@')[0]
 
-    # Check if username already exists, if so, append numbers
+    # check if username already exists, if so, append numbers
     base_username = username
     counter = 1
     while db.query(User).filter(User.username == username).first():
