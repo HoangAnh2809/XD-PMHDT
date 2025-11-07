@@ -7,7 +7,7 @@ import sys
 import os
 import logging
 
-# Add parent directory to path for imports
+# add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from shared.database import get_db, engine
@@ -23,7 +23,7 @@ from shared.auth import (
 from schemas import UserCreate, UserResponse, Token, UserLogin
 import httpx
 
-# Create tables
+# create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="EV Maintenance API Gateway", version="1.0.0")
@@ -34,7 +34,7 @@ logger = logging.getLogger('api_gateway')
 # CORS middleware - Must be configured before any routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
+    allow_origins=["*"],  # allow all origins for development
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
@@ -42,7 +42,7 @@ app.add_middleware(
     max_age=3600,
 )
 
-# Additional CORS headers middleware
+# additional CORS headers middleware
 @app.middleware("http")
 async def add_cors_headers(request, call_next):
     response = await call_next(request)
@@ -52,7 +52,7 @@ async def add_cors_headers(request, call_next):
     response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
 
-# Service URLs
+# service URLs
 CUSTOMER_SERVICE_URL = os.getenv("CUSTOMER_SERVICE_URL", "http://localhost:8001")
 SERVICE_CENTER_URL = os.getenv("SERVICE_CENTER_URL", "http://localhost:8002")
 CHAT_SERVICE_URL = os.getenv("CHAT_SERVICE_URL", "http://localhost:8003")
@@ -77,7 +77,7 @@ async def root():
 
 @app.post("/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    # Check if user exists
+    # check if user exists
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
         raise HTTPException(
@@ -85,17 +85,17 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
     
-    # Auto-generate username from email (part before @)
+    # auto-generate username from email (part before @)
     username = user_data.email.split('@')[0]
     
-    # Check if username already exists, if so, append numbers
+    # check if username already exists, if so, append numbers
     base_username = username
     counter = 1
     while db.query(User).filter(User.username == username).first():
         username = f"{base_username}{counter}"
         counter += 1
     
-    # Create user
+    # create user
     db_user = User(
         email=user_data.email,
         username=username,
@@ -108,7 +108,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
     
-    # Create role-specific profile
+    # create role-specific profile
     if user_data.role == "customer":
         customer = Customer(user_id=db_user.id)
         db.add(customer)
@@ -198,7 +198,7 @@ async def get_current_user_info(request: Request, db: Session = Depends(get_db))
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.split(" ")[1]
     else:
-        # Check for token in query params
+        # check for token in query params
         token = request.query_params.get("token")
     
     if not token:
@@ -208,7 +208,7 @@ async def get_current_user_info(request: Request, db: Session = Depends(get_db))
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Decode and validate token
+    # decode and validate token
     payload = decode_access_token(token)
     if payload is None:
         raise HTTPException(
@@ -230,7 +230,7 @@ async def get_current_user_info(request: Request, db: Session = Depends(get_db))
         is_active=user.is_active
     )
 
-# Proxy endpoints to microservices
+# proxy endpoints to microservices
 async def proxy_request(url: str, method: str = "GET", headers: dict = None, json_data: dict = None, params: dict = None):
     async with httpx.AsyncClient(timeout=30.0) as client:
         try:
