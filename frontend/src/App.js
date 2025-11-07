@@ -106,7 +106,7 @@ function App() {
           <Route path="/customer/invoice/:invoiceId" element={<ProtectedRoute allowedRoles={['customer']}><InvoiceDetailPage /></ProtectedRoute>} />
           <Route path="/customer/chat" element={<ProtectedRoute allowedRoles={['customer']}><ChatPage /></ProtectedRoute>} />
 
-          {/* Staff Routes */}
+          {/* staff Routes */}
           <Route path="/staff/dashboard" element={<ProtectedRoute allowedRoles={['staff','admin']}><StaffDashboard /></ProtectedRoute>} />
           <Route path="/staff/appointments" element={<ProtectedRoute allowedRoles={['staff','admin']}><ManageAppointmentsPage /></ProtectedRoute>} />
           <Route path="/staff/appointments/:appointmentId" element={<ProtectedRoute allowedRoles={['staff','admin']}><AppointmentForm /></ProtectedRoute>} />
@@ -121,7 +121,7 @@ function App() {
 
           <Route path="/staff/invoices/:invoiceId" element={<ProtectedRoute allowedRoles={['staff','admin']}><StaffInvoiceDetailPage /></ProtectedRoute>} />
 
-          {/* Technician Routes - With dedicated layout */}
+          {/* technician Routes - With dedicated layout */}
           <Route
             path="/technician/dashboard"
             element={
@@ -218,7 +218,7 @@ function App() {
             }
           />
 
-          {/* Admin Routes - With dedicated layout */}
+          {/* admin Routes - With dedicated layout */}
           <Route
             path="/admin/dashboard"
             element={
@@ -290,7 +290,7 @@ function App() {
             }
           />
 
-          {/* Fallback */}
+          {/* fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
           <Route
             path="/staff/invoices/:invoiceId"
