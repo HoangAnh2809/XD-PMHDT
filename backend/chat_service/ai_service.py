@@ -37,7 +37,7 @@ class AIService:
             else:
                 logger.warning("OPENAI_API_KEY not found. AI Service will use fallback responses.")
         
-        # System prompts for different contexts
+        # system prompts for different contexts
         self.system_prompts = {
             "customer_support": """Bạn là trợ lý AI cho dịch vụ bảo dưỡng xe điện EV Service Center.
             Nhiệm vụ của bạn là hỗ trợ khách hàng với các câu hỏi về:
@@ -59,7 +59,7 @@ class AIService:
             Hãy cung cấp thông tin chính xác và hữu ích cho người dùng."""
         }
         
-        # Conversation history cache (session_id -> messages)
+        # conversation history cache (session_id -> messages)
         self.conversation_history: Dict[str, List[Dict]] = {}
     
     async def get_response(
@@ -82,7 +82,7 @@ class AIService:
             Dict with response content and metadata
         """
         try:
-            # Determine system prompt based on user type
+            # determine system prompt based on user type
             user_role = user_context.get('role', 'customer') if user_context else 'customer'
             
             if user_role in ['technician', 'staff']:
@@ -90,7 +90,7 @@ class AIService:
             else:
                 system_prompt = self.system_prompts['customer_support']
             
-            # Get or initialize conversation history
+            # get or initialize conversation history
             if session_id:
                 if session_id not in self.conversation_history:
                     self.conversation_history[session_id] = []
@@ -98,7 +98,7 @@ class AIService:
             else:
                 history = []
             
-            # Add context information to message if available
+            # add context information to message if available
             enhanced_message = message
             if context:
                 context_info = []
@@ -112,7 +112,7 @@ class AIService:
                 if context_info:
                     enhanced_message = f"{message}\n\nThông tin bổ sung:\n" + "\n".join(context_info)
             
-            # Use OpenAI API if enabled
+            # use OpenAI API if enabled
             if self.enabled:
                 response = await self._get_openai_response(
                     system_prompt=system_prompt,
