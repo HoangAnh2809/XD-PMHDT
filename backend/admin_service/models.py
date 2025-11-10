@@ -14,7 +14,7 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     full_name = Column(String)
-    role = Column(String)  # admin, staff, technician, customer
+    role = Column(String)  # Admin, Staff, Technician, Customer
     phone = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     is_locked = Column(Boolean, default=False)
@@ -22,7 +22,7 @@ class User(Base):
     updated_at = Column(DateTime, nullable=True)
     password_hash = Column(String)
 
-    # Staff-specific fields (stored as JSON for flexibility)
+    # staff-specific fields (stored as JSON for flexibility)
     branch_id = Column(UUID(as_uuid=True), ForeignKey(
         "service_centers.id"), nullable=True)
     position = Column(String, nullable=True)
@@ -30,4 +30,4 @@ class User(Base):
     salary = Column(Float, nullable=True)
     # morning, afternoon, night, flexible
     shift = Column(String, nullable=True)
-    skills = Column(JSON, nullable=True)  # For technicians
+    skills = Column(JSON, nullable=True)  # for technicians
