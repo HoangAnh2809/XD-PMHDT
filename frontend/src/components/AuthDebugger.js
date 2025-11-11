@@ -8,10 +8,10 @@ const AuthDebugger = () => {
   const token = localStorage.getItem('token');
   const [isVisible, setIsVisible] = React.useState(false);
 
-  // Hook must be called unconditionally
+  // hook must be called unconditionally
   React.useEffect(() => {
     const handleKeyPress = (e) => {
-      // Press Ctrl+Shift+D to toggle debug
+      // press Ctrl+Shift+D to toggle debug
       if (e.ctrlKey && e.shiftKey && e.key === 'D') {
         setIsVisible(prev => !prev);
       }
@@ -21,7 +21,7 @@ const AuthDebugger = () => {
   }, []);
 
   if (process.env.NODE_ENV === 'production') {
-    return null; // Don't show in production
+    return null; // don't show in production
   }
 
   if (!isVisible) {
