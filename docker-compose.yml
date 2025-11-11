@@ -1,5 +1,5 @@
 services:
-  # PostgreSQL Database
+  # postgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: ev_maintenance_db
@@ -33,7 +33,7 @@ services:
     depends_on:
       - postgres
 
-  # Redis for caching and session management
+  # redis for caching and session management
   redis:
     image: redis:7-alpine
     container_name: ev_redis
@@ -74,7 +74,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # Customer Service
+  # customer service
   customer_service:
     build:
       context: ./backend
@@ -96,7 +96,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # Service Center Service
+  # service Center Service
   service_center:
     build:
       context: ./backend
@@ -119,7 +119,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # Chat Service (Real-time Chat & AI Assistant)
+  # chat Service (Real-time Chat & AI Assistant)
   chat_service:
     build:
       context: ./backend/chat_service
@@ -141,7 +141,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # Notification Service
+  # notification Service
   notification_service:
     build:
       context: ./backend
@@ -168,7 +168,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # Payment Service
+  # payment Service
   payment_service:
     build:
       context: ./backend
@@ -197,7 +197,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # Admin Service (Admin Panel Backend)
+  # admin Service (Admin Panel Backend)
   admin_service:
     build:
       context: ./backend/admin_service
@@ -216,7 +216,7 @@ services:
       - postgres
     restart: unless-stopped
 
-  # Frontend React Application (Production - Static Files)
+  # frontend React Application (Production - Static Files)
   frontend:
     build:
       context: ./frontend
