@@ -651,7 +651,7 @@ const PaymentPage = () => {
                         {getStatusBadge(invoice.status)}
                       </td>
                       <td style={{ padding: '1rem', color: '#4a5568', borderBottom: '1px solid #e2e8f0' }}>
-                        {formatDate(invoice.paid_at || invoice.created_at)}
+                        {formatDate(invoice.payment_date || invoice.created_at)}
                       </td>
                       <td style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0' }}>
                         <span className="badge badge-info" style={{
@@ -1010,7 +1010,7 @@ const InvoiceDetailModal = ({ invoice, onClose, formatCurrency, formatDate, onPa
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                 <div>
                   <strong style={{ color: '#2d3748' }}>📅 Ngày thanh toán:</strong><br />
-                  <span style={{ color: '#4a5568' }}>{formatDate(invoice.paid_at || invoice.updated_at)}</span>
+                  <span style={{ color: '#4a5568' }}>{formatDate(invoice.payment_date || invoice.updated_at)}</span>
                 </div>
                 <div>
                   <strong style={{ color: '#2d3748' }}>💳 Phương thức:</strong><br />

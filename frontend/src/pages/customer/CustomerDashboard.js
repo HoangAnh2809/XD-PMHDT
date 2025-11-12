@@ -39,8 +39,8 @@ const CustomerDashboard = () => {
         setRecentAppointments(appointments.value.data.slice(0, 5));
       }
     } catch (error) {
-      // dashboard APIs not ready yet
-      // set default empty stats on error
+      // Dashboard APIs not ready yet
+      // Set default empty stats on error
       setStats({
         vehicles: 0,
         appointments: 0,

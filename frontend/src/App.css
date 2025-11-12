@@ -1840,19 +1840,45 @@ tr:hover {
   align-items: center;
   gap: 1rem;
   padding: 0.875rem 1rem;
-  background: none;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.8);
-  border-radius: 8px;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border: 2px solid rgba(220, 53, 69, 0.3);
+  color: white;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 1rem;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.logout-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
 }
 
 .logout-btn:hover {
-  background-color: rgba(220,53,69,0.2);
-  border-color: #dc3545;
-  color: white;
+  background: linear-gradient(135deg, #c82333 0%, #a02622 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.5);
+  border-color: rgba(220, 53, 69, 0.6);
+}
+
+.logout-btn:hover::before {
+  left: 100%;
+}
+
+.logout-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
 }
 
 .staff-sidebar.collapsed .logout-btn {

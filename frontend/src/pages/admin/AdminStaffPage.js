@@ -87,7 +87,7 @@ const AdminStaffPage = () => {
       console.error('Error response:', error.response?.data);
       console.error('Error status:', error.response?.status);
       
-      // handle validation errors (422) and other errors
+      // Handle validation errors (422) and other errors
       let errorMessage = 'Không thể lưu nhân viên';
       
       if (error.response?.status === 400) {

@@ -26,13 +26,13 @@ const TechnicianTasksPage = () => {
 
       // Load appointment details for tasks that have appointment_id
       const appointmentPromises = tasksData
-        .filter(task => task.appointment_id)
+        .filter(task => task.id)
         .map(async (task) => {
           try {
-            const appointmentData = await serviceCenterAPI.getAppointment(task.appointment_id);
-            return { id: task.appointment_id, data: appointmentData };
+            const appointmentData = await serviceCenterAPI.getAppointment(task.id);
+            return { id: task.id, data: appointmentData };
           } catch (error) {
-            console.error(`Error loading appointment ${task.appointment_id}:`, error);
+            console.error(`Error loading appointment ${task.id}:`, error);
             return null;
           }
         });
@@ -165,7 +165,7 @@ const TechnicianTasksPage = () => {
                   {filteredTasks.map(task => {
                     const priority = getPriorityBadge(task.priority || 'low');
                     const vehicleInfo = `${task.vehicle_make || ''} ${task.vehicle_model || ''}`.trim() || 'N/A';
-                    const appointment = appointments[task.appointment_id];
+                    const appointment = appointments[task.id];
                     
                     return (
                       <tr key={task.id}>
@@ -175,10 +175,10 @@ const TechnicianTasksPage = () => {
                           </span>
                         </td>
                         <td>
-                          {task.appointment_id ? (
+                          {task.id ? (
                             <div>
                               <code style={{ background: '#f5f5f5', padding: '2px 4px', borderRadius: '3px', fontSize: '0.85rem' }}>
-                                {task.appointment_id.slice(0, 8)}...
+                                {task.id}
                               </code>
                               {appointment && (
                                 <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '2px' }}>
@@ -256,10 +256,10 @@ const TechnicianTasksPage = () => {
                             >
                               Chi tiết
                             </button>
-                            {task.appointment_id && (user?.role === 'staff' || user?.role === 'admin') && (
+                            {task.id && (user?.role === 'staff' || user?.role === 'admin') && (
                               <button 
                                 className="btn btn-sm btn-outline-success"
-                                onClick={() => navigate(`/staff/invoices/create?appointmentId=${task.appointment_id}`)}
+                                onClick={() => navigate(`/staff/invoices/create?appointmentId=${task.id}`)}
                                 title="Tạo hóa đơn cho lịch hẹn này"
                               >
                                 📄 Tạo HĐ

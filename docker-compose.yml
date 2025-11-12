@@ -1,5 +1,5 @@
 services:
-  # postgreSQL Database
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: ev_maintenance_db
@@ -33,7 +33,7 @@ services:
     depends_on:
       - postgres
 
-  # redis for caching and session management
+  # Redis for caching and session management
   redis:
     image: redis:7-alpine
     container_name: ev_redis
@@ -74,7 +74,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # customer service
+  # Customer Service
   customer_service:
     build:
       context: ./backend
@@ -96,7 +96,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # service Center Service
+  # Service Center Service
   service_center:
     build:
       context: ./backend
@@ -112,6 +112,7 @@ services:
     volumes:
       - ./backend/shared:/app/shared
       - ./backend/service_center:/app
+      - ./uploads:/app/uploads
     networks:
       - ev_network
     depends_on:
@@ -119,7 +120,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # chat Service (Real-time Chat & AI Assistant)
+  # Chat Service (Real-time Chat & AI Assistant)
   chat_service:
     build:
       context: ./backend/chat_service
@@ -141,7 +142,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # notification Service
+  # Notification Service
   notification_service:
     build:
       context: ./backend
@@ -168,7 +169,7 @@ services:
       - redis
     restart: unless-stopped
 
-  # payment Service
+  # Payment Service
   payment_service:
     build:
       context: ./backend
@@ -197,11 +198,11 @@ services:
       - redis
     restart: unless-stopped
 
-  # admin Service (Admin Panel Backend)
+  # Admin Service (Admin Panel Backend)
   admin_service:
     build:
-      context: ./backend/admin_service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: admin_service/Dockerfile
     container_name: ev_admin_service
     environment:
       - DATABASE_URL=postgresql://evadmin:evadmin123@postgres:5432/ev_maintenance
@@ -209,6 +210,7 @@ services:
     ports:
       - "8007:8007"
     volumes:
+      - ./backend/shared:/app/shared
       - ./backend/admin_service:/app
     networks:
       - ev_network
@@ -216,7 +218,7 @@ services:
       - postgres
     restart: unless-stopped
 
-  # frontend React Application (Production - Static Files)
+  # Frontend React Application (Production - Static Files)
   frontend:
     build:
       context: ./frontend

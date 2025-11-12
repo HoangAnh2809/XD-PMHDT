@@ -42,11 +42,11 @@ const AdminBranchesPage = () => {
   const handleSaveBranch = async (branchData) => {
     try {
       if (selectedBranch) {
-        // update existing branch
+        // Update existing branch
         await branchAPI.update(selectedBranch.id, branchData);
         alert('Chi nhánh đã được cập nhật thành công!');
       } else {
-        // create new branch
+        // Create new branch
         await branchAPI.create(branchData);
         alert('Chi nhánh mới đã được tạo thành công!');
       }
@@ -55,7 +55,7 @@ const AdminBranchesPage = () => {
       setSelectedBranch(null);
     } catch (error) {
       console.error('Error saving branch:', error);
-      throw error; // let modal handle the error
+      throw error; // Let modal handle the error
     }
   };
 
@@ -88,7 +88,7 @@ const AdminBranchesPage = () => {
     }
   };
 
-  // filter branches
+  // Filter branches
   const filteredBranches = branches.filter(branch => {
     const matchesSearch = !searchTerm || 
       branch.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -116,7 +116,7 @@ const AdminBranchesPage = () => {
         </button>
       </div>
 
-      {/* stats */}
+      {/* Stats */}
       <div className="stats-row">
         <div className="stat-item">
           <span className="stat-icon">🏢</span>
@@ -141,7 +141,7 @@ const AdminBranchesPage = () => {
         </div>
       </div>
 
-      {/* search and Filter */}
+      {/* Search and Filter */}
       <div className="search-bar">
         <input
           type="text"

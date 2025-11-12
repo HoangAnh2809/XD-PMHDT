@@ -168,6 +168,8 @@ class ServiceType(Base):
     description = Column(Text)
     base_price = Column(DECIMAL(10, 2), nullable=False)
     estimated_duration = Column(Integer)  # Changed back to Integer to match database schema
+    warranty_period = Column(String(100))
+    image_url = Column(String(500))
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())

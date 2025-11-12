@@ -18,7 +18,7 @@ const TechnicianDashboard = () => {
   const [schedule, setSchedule] = useState(null);
   const [notifications, setNotifications] = useState([]);
 
-  // check if user has technician role
+  // Check if user has technician role
   useEffect(() => {
     if (user && !['technician', 'admin'].includes(user.role)) {
       console.warn('User does not have technician role, redirecting to appropriate dashboard');
@@ -34,7 +34,7 @@ const TechnicianDashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-    const interval = setInterval(loadDashboardData, 120000); // refresh mỗi 2 phút
+    const interval = setInterval(loadDashboardData, 120000); // Refresh mỗi 2 phút
     return () => clearInterval(interval);
   }, []);
 
@@ -49,16 +49,16 @@ const TechnicianDashboard = () => {
       ]);
 
       setStats(statsData || {});
-      // ensure all data is arrays
+      // Ensure all data is arrays
       setTodayTasks(Array.isArray(tasksData) ? tasksData : []);
       setSchedule(Array.isArray(scheduleData) ? scheduleData : []);
       setNotifications(Array.isArray(notifData) ? notifData : []);
     } catch (error) {
       console.error('Error loading dashboard:', error);
-      // check if it's an authorization error
+      // Check if it's an authorization error
       if (error.response?.status === 403 || error.response?.status === 401) {
         console.warn('Access denied to technician dashboard, user may not have technician role');
-        // optionally redirect to appropriate dashboard
+        // Optionally redirect to appropriate dashboard
         // navigate('/customer/dashboard');
       }
       // Set safe defaults on error
@@ -110,7 +110,7 @@ const TechnicianDashboard = () => {
 
   return (
       <div className="container" style={{marginTop: '2rem'}}>
-        {/* welcome Section */}
+        {/* Welcome Section */}
         <div className="welcome-section">
           <div>
             <h1>🔧 Bảng điều khiển Kỹ thuật viên</h1>
@@ -129,7 +129,7 @@ const TechnicianDashboard = () => {
           )}
         </div>
 
-        {/* notifications */}
+        {/* Notifications */}
         {notifications.length > 0 && (
           <div className="notifications-banner" style={{marginBottom: '1.5rem'}}>
             {notifications.map((notif, index) => (

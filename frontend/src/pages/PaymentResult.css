@@ -275,21 +275,111 @@
   box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
 }
 
-/* Support Info */
-.support-info {
-  margin-top: 30px;
-  padding-top: 25px;
-  border-top: 2px solid #f0f0f0;
-  color: #666;
+/* Payment Breakdown */
+.payment-breakdown,
+.customer-info,
+.vehicle-info,
+.service-info,
+.service-records {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.payment-breakdown h3,
+.customer-info h3,
+.vehicle-info h3,
+.service-info h3,
+.service-records h3 {
+  color: #495057;
+  font-size: 16px;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.breakdown-grid,
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.breakdown-item,
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.breakdown-item .label,
+.info-item .label {
   font-size: 14px;
+  color: #666;
+  font-weight: 500;
 }
 
-.support-info p {
-  margin: 8px 0;
-}
-
-.support-info strong {
+.breakdown-item .value,
+.info-item .value {
+  font-size: 14px;
   color: #333;
+  font-weight: 600;
+}
+
+.breakdown-item.total {
+  border-top: 2px solid #dee2e6;
+  margin-top: 10px;
+  padding-top: 15px;
+}
+
+.breakdown-item.total .label,
+.breakdown-item.total .value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #28a745;
+}
+
+/* Service Records */
+.service-record {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.record-date {
+  font-weight: 600;
+  color: #495057;
+}
+
+.record-cost {
+  font-weight: 700;
+  color: #28a745;
+}
+
+.record-services,
+.record-diagnosis,
+.record-technician {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.record-services strong,
+.record-diagnosis strong,
+.record-technician strong {
+  color: #495057;
 }
 
 /* Loading Spinner */
@@ -319,7 +409,9 @@
     font-size: 26px;
   }
 
-  .detail-grid {
+  .detail-grid,
+  .breakdown-grid,
+  .info-grid {
     grid-template-columns: 1fr;
   }
 
@@ -344,5 +436,19 @@
 
   .error-icon {
     font-size: 50px;
+  }
+
+  .payment-breakdown,
+  .customer-info,
+  .vehicle-info,
+  .service-info,
+  .service-records {
+    padding: 15px;
+  }
+
+  .record-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
   }
 }

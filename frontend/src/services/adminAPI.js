@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// admin API should go through API Gateway at /admin/*
+// Admin API should go through API Gateway at /admin/*
 // API Gateway will proxy to admin_service at /api/admin/*
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 const ADMIN_API_BASE_URL = `${API_BASE_URL}/admin`;
@@ -12,7 +12,7 @@ const adminAPI = axios.create({
   },
 });
 
-// request interceptor to add auth token
+// Request interceptor to add auth token
 adminAPI.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -26,12 +26,12 @@ adminAPI.interceptors.request.use(
   }
 );
 
-// response interceptor for error handling
+// Response interceptor for error handling
 adminAPI.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // redirect to login if unauthorized
+      // Redirect to login if unauthorized
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

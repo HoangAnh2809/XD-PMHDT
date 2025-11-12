@@ -4,7 +4,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // 30 Seconds timeout
+  timeout: 30000, // 30 seconds timeout
   headers: {
     'Content-Type': 'application/json',
   },
@@ -12,11 +12,20 @@ const api = axios.create({
 
 const silentApi = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // 30 Seconds timeout
+  timeout: 30000, // 30 seconds timeout
   headers: {
     'Content-Type': 'application/json',
   },
   validateStatus: () => true,
+});
+
+// Public API instance without authentication
+const publicApi = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 api.interceptors.request.use(
@@ -57,11 +66,22 @@ silentApi.interceptors.response.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const requestUrl = error.config?.url || '';
+
+    // Do not force-logout for auth-related endpoints where a 401 may be
+    // part of a normal flow (for example: /auth/me when token is invalid,
+    // or login/register endpoints). Only perform redirect for unexpected
+    // 401s from other endpoints.
+    const authSafePaths = ['/auth/login-json', '/auth/login', '/auth/register', '/auth/me'];
+    const isAuthSafe = authSafePaths.some((p) => requestUrl.endsWith(p) || requestUrl.includes(p));
+
+    if (status === 401 && !isAuthSafe) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
+
     return Promise.reject(error);
   }
 );
@@ -81,7 +101,7 @@ const silentRequest = async (requestFn) => {
   }
 };
 
-// Helper to remove null/Undefined values from params before sending to server
+// Helper to remove null/undefined values from params before sending to server
 const cleanParams = (params) => {
   if (!params) return {};
   const out = {};
@@ -110,11 +130,12 @@ export const customerAPI = {
   getAppointment: (id) => api.get(`/customer/appointments/${id}`),
   createAppointment: (data) => api.post('/customer/appointments', data),
   cancelAppointment: (id) => api.delete(`/customer/appointments/${id}`),
-  getServiceTypes: () => api.get('/customer/service-types'),
+  getServiceTypes: () => api.get('/admin/services'),
   getServiceCenters: () => api.get('/customer/service-centers'),
   getParts: (params) => api.get('/customer/parts', { params }),
   getProfile: () => api.get('/customer/profile'),
   updateProfile: (data) => api.put('/customer/profile', data),
+  changePassword: (data) => api.put('/customer/profile/change-password', data),
   uploadAvatar: (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -150,6 +171,7 @@ export const invoiceAPI = {
   getInvoices: (customerId) => api.get('/payment/invoices', { params: { customer_id: customerId } }).then(r => r.data),
   getInvoice: (invoiceId) => api.get(`/payment/invoices/${invoiceId}`),
   getInvoiceDetail: (invoiceId) => api.get(`/payment/invoices/${invoiceId}`),
+  getInvoiceDetails: (invoiceId) => api.get(`/payment/invoices/${invoiceId}/details`),
   createInvoice: (data) => {
     // Use manual creation endpoint for full control over invoice data
     return api.post('/payment/invoices/manual', data);
@@ -184,8 +206,8 @@ export const staffAPI = {
   deleteAppointment: (id) => api.delete(`/service-center/appointments/${id}`),
   getTechnicians: () => api.get('/service-center/technicians'),
   getServiceTypes: () => api.get('/service-center/service-types'),
-  createServiceType: (data) => api.post('/service-center/service-types', data),
-  updateServiceType: (id, data) => api.put(`/service-center/service-types/${id}`, data),
+  createServiceType: (data, config) => api.post('/service-center/service-types', data, config),
+  updateServiceType: (id, data, config) => api.put(`/service-center/service-types/${id}`, data, config),
   deleteServiceType: (id) => api.delete(`/service-center/service-types/${id}`),
   getParts: (params) => api.get('/service-center/parts', { params }),
   createPart: (data) => api.post('/service-center/parts', data),
@@ -235,6 +257,10 @@ export const technicianAPI = {
   askAI: (question, context) => api.post('/service-center/technician/ai-assistant', { question, context }).then(r => r.data),
   getErrorCode: (code) => api.get(`/service-center/technician/error-codes/${code}`).then(r => r.data),
   getInvoices: (params) => api.get('/payment/invoices', { params: cleanParams(params) }).then(r => r.data),
+};
+
+export const publicAPI = {
+  getServiceTypes: () => publicApi.get('/service-center/service-types/public'),
 };
 
 export const chatAPI = {

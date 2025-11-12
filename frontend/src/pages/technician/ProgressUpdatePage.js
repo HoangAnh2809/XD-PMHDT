@@ -41,11 +41,11 @@ const ProgressUpdatePage = () => {
   const loadTaskDetails = async () => {
     setLoading(true);
     try {
-      // load task details
+      // Load task details
       const taskData = await technicianAPI.getTaskDetails(taskId);
       setTask(taskData);
 
-      // load checklist if task is in progress or completed
+      // Load checklist if task is in progress or completed
       if (taskData.status === 'in_progress' || taskData.status === 'completed') {
         try {
           const checklistData = await technicianAPI.getTaskChecklist(taskId);
@@ -55,7 +55,7 @@ const ProgressUpdatePage = () => {
         }
       }
 
-      // load parts requests
+      // Load parts requests
       try {
         const partsData = await technicianAPI.getPartsRequests({ task_id: taskId });
         setPartsRequests(partsData || []);
@@ -63,7 +63,7 @@ const ProgressUpdatePage = () => {
         console.log('No parts requests available');
       }
 
-      // load progress history
+      // Load progress history
       try {
         const historyData = await technicianAPI.getProgressHistory(taskId);
         setUpdateHistory(historyData.history || []);
@@ -74,7 +74,7 @@ const ProgressUpdatePage = () => {
       // Initialize form data
       setFormData({
         status: taskData.status || 'in_progress',
-        progress_percentage: calculateProgressFromChecklist(checklistData?.items || []),
+        progress_percentage: calculateProgressFromChecklist(checklist),
         notes: '',
         issues_found: '',
         estimated_completion: taskData.estimated_completion || '',
@@ -840,3 +840,5 @@ const ProgressUpdatePage = () => {
     </TechnicianLayout>
   );
 }
+
+export default ProgressUpdatePage;

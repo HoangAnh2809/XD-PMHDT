@@ -3,7 +3,7 @@ import { inventoryAPI } from '../../services/adminAPI';
 import { useAuth } from '../../contexts/AuthContext';
 import './AdminAISuggestionsPage.css';
 
-// modal tạo đơn nhập kết nối backend thực tế
+// Modal tạo đơn nhập kết nối backend thực tế
 function OrderModal({ part, onClose, formatCurrency }) {
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ function OrderModal({ part, onClose, formatCurrency }) {
     setLoading(true); setError(''); setSuccess(false);
     try {
       let id = partId;
-      // nếu chưa có part, tạo mới
+      // Nếu chưa có part, tạo mới
       if (!id) {
         const createRes = await inventoryAPI.create({
           name: part.partName,
@@ -42,7 +42,7 @@ function OrderModal({ part, onClose, formatCurrency }) {
         });
         id = createRes.data.id;
       }
-      // gọi API nhập kho
+      // Gọi API nhập kho
       await inventoryAPI.adjustStock(id, part.recommendedStock, note || 'Nhập kho từ gợi ý AI');
       setSuccess(true);
     } catch (e) {
@@ -118,7 +118,7 @@ const AdminAISuggestionsPage = () => {
     setLoading(true);
     try {
       // Simulate AI-generated suggestions
-      // in production, this would call your AI service
+      // In production, this would call your AI service
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       setSuggestions({

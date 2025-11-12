@@ -1,13 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import { useAuth } from '../../contexts/AuthContext';
+import { publicAPI } from '../../services/api';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   // Redirect handled by PublicRoute wrapper
+
+  useEffect(() => {
+    loadServices();
+  }, []);
+
+  const loadServices = async () => {
+    try {
+      setLoading(true);
+      const response = await publicAPI.getServiceTypes();
+      setServices(response.data || []);
+    } catch (err) {
+      console.error('Error loading services:', err);
+      setServices([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resolveImageUrl = (url) => {
+    if (!url) return null;
+    try {
+      const u = String(url);
+      if (u.startsWith('http://') || u.startsWith('https://')) return u;
+      // Add timestamp for cache-busting
+      if (u.startsWith('/')) return `${API_BASE_URL}${u}?t=${Date.now()}`;
+      return `${API_BASE_URL}/${u}?t=${Date.now()}`;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const formatPrice = (price) => {
+    if (!price) return 'Liên hệ';
+    return `${parseFloat(price).toLocaleString('vi-VN')} VNĐ`;
+  };
   
   const features = [
     {
@@ -39,48 +80,6 @@ const HomePage = () => {
       icon: '🛡️',
       title: 'Bảo hành chính hãng',
       description: 'Cam kết bảo hành dịch vụ và phụ tùng chính hãng với chất lượng tốt nhất.'
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: 'Nguyễn Văn An',
-      role: 'Chủ xe VinFast VF8',
-      avatar: '👨‍💼',
-      content: 'Dịch vụ rất chuyên nghiệp, kỹ thuật viên nhiệt tình. Xe sau khi bảo dưỡng chạy êm ái hơn hẳn. Tôi rất hài lòng!',
-      rating: 5
-    },
-    {
-      name: 'Trần Thị Bình',
-      role: 'Chủ xe Tesla Model 3',
-      avatar: '👩‍💼',
-      content: 'Hệ thống đặt lịch online rất tiện lợi, giá cả minh bạch. Trung tâm sạch sẽ, hiện đại. Tôi sẽ giới thiệu cho bạn bè.',
-      rating: 5
-    },
-    {
-      name: 'Lê Minh Cường',
-      role: 'Chủ xe Hyundai Kona EV',
-      avatar: '👨',
-      content: 'Đội ngũ tư vấn nhiệt tình, giải thích rõ ràng về tình trạng xe. Giá dịch vụ hợp lý, chất lượng tốt.',
-      rating: 5
-    }
-  ];
-
-  const popularServices = [
-    {
-      title: 'Bảo dưỡng định kỳ',
-      price: '2,000,000 VNĐ',
-      image: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=400&h=250&fit=crop'
-    },
-    {
-      title: 'Kiểm tra Pin',
-      price: '500,000 VNĐ',
-      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=400&h=250&fit=crop'
-    },
-    {
-      title: 'Sửa chữa Khẩn cấp',
-      price: '1,500,000 VNĐ',
-      image: 'https://images.unsplash.com/photo-1632823469662-70740d49f9e9?w=400&h=250&fit=crop'
     }
   ];
 
@@ -149,14 +148,17 @@ const HomePage = () => {
           <p className="section-subtitle">
             Những dịch vụ được khách hàng lựa chọn nhiều nhất
           </p>
-          
+
           <div className="services-preview-grid">
-            {popularServices.map((service, index) => (
-              <div key={index} className="service-preview-card">
+            {services.slice(0, 3).map((service) => (
+              <div key={service.id} className="service-preview-card">
                 <div className="service-preview-image">
-                  <img src={service.image} alt={service.title} />
+                  <img
+                    src={resolveImageUrl(service.image_url) || 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=400&h=250&fit=crop'}
+                    alt={service.name}
+                  />
                   <div className="service-preview-overlay">
-                    <button 
+                    <button
                       onClick={() => navigate(user ? '/customer/booking' : '/services')}
                       className="btn btn-primary"
                     >
@@ -165,50 +167,20 @@ const HomePage = () => {
                   </div>
                 </div>
                 <div className="service-preview-content">
-                  <h3>{service.title}</h3>
-                  <p className="service-preview-price">{service.price}</p>
+                  <h3>{service.name}</h3>
+                  <p className="service-preview-price">{formatPrice(service.base_price)}</p>
                 </div>
               </div>
             ))}
           </div>
-          
+
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <button 
+            <button
               onClick={() => navigate(user ? '/customer/booking' : '/services')}
               className="btn btn-primary btn-large"
             >
               {user ? 'Đặt lịch bảo dưỡng' : 'Xem tất cả dịch vụ'}
             </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="testimonials-section">
-        <div className="container">
-          <h2 className="section-title" style={{ color: 'white' }}>
-            Khách hàng nói gì về chúng tôi
-          </h2>
-          <p className="section-subtitle" style={{ color: 'rgba(255,255,255,0.9)' }}>
-            Hơn 10,000 khách hàng đã tin tưởng và hài lòng với dịch vụ của chúng tôi
-          </p>
-          
-          <div className="testimonials-grid">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="testimonial-card">
-                <div className="testimonial-rating">
-                  {'⭐'.repeat(testimonial.rating)}
-                </div>
-                <p className="testimonial-content">"{testimonial.content}"</p>
-                <div className="testimonial-author">
-                  <div className="author-avatar">{testimonial.avatar}</div>
-                  <div className="author-info">
-                    <div className="author-name">{testimonial.name}</div>
-                    <div className="author-role">{testimonial.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

@@ -9,7 +9,7 @@ import AdminLayout from './components/AdminLayout';
 import StaffLayout from './components/StaffLayout';
 import FloatingChatButton from './components/FloatingChatButton';
 
-// public Pages
+// Public Pages
 import HomePage from './pages/public/HomePage';
 import ServicesPage from './pages/public/ServicesPage';
 import AboutPage from './pages/public/AboutPage';
@@ -17,16 +17,16 @@ import ContactPage from './pages/public/ContactPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 
-// payment Pages
+// Payment Pages
 import PaymentPageNew from './pages/PaymentPage';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentFailed from './pages/PaymentFailed';
 
-// invoice Pages
+// Invoice Pages
 import InvoiceListPage from './pages/InvoiceListPage';
 import InvoiceDetailPageNew from './pages/InvoiceDetailPage';
 
-// customer Pages
+// Customer Pages
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import VehiclesPage from './pages/customer/VehiclesPage';
 import ServiceHistoryPage from './pages/customer/ServiceHistoryPage';
@@ -38,7 +38,7 @@ import InvoiceDetailPage from './pages/customer/InvoiceDetailPage';
 import StaffInvoiceDetailPage from './pages/staff/InvoiceDetailPage';
 import ChatPage from './pages/customer/ChatPage';
 
-// staff Pages
+// Staff Pages
 import StaffDashboard from './pages/staff/StaffDashboard';
 import ManageAppointmentsPage from './pages/staff/ManageAppointmentsPage';
 import AppointmentForm from './pages/staff/AppointmentForm';
@@ -50,7 +50,7 @@ import ManageCustomersPage from './pages/staff/ManageCustomersPage';
 import StaffServicesPage from './pages/staff/StaffServicesPage';
 import ManageInvoicesPage from './pages/staff/ManageInvoicesPage';
 
-// technician Pages
+// Technician Pages
 import TechnicianDashboard from './pages/technician/TechnicianDashboard';
 import TechnicianTasksPage from './pages/technician/TechnicianTasksPage';
 import TaskDetailsPage from './pages/technician/TaskDetailsPage';
@@ -60,7 +60,7 @@ import PartsRequestPage from './pages/technician/PartsRequestPage';
 import ProgressUpdatePage from './pages/technician/ProgressUpdatePage';
 import CreateInvoicePage from './pages/technician/CreateInvoicePage';
 
-// admin Pages
+// Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminBranchesPage from './pages/admin/AdminBranchesPage';
@@ -68,6 +68,7 @@ import AdminStaffPage from './pages/admin/AdminStaffPage';
 import AdminInventoryPage from './pages/admin/AdminInventoryPage';
 import AdminFinancePage from './pages/admin/AdminFinancePage';
 import AdminAISuggestionsPage from './pages/admin/AdminAISuggestionsPage';
+import AdminShiftsPage from './pages/admin/AdminShiftsPage';
 
 import './App.css';
 
@@ -106,7 +107,7 @@ function App() {
           <Route path="/customer/invoice/:invoiceId" element={<ProtectedRoute allowedRoles={['customer']}><InvoiceDetailPage /></ProtectedRoute>} />
           <Route path="/customer/chat" element={<ProtectedRoute allowedRoles={['customer']}><ChatPage /></ProtectedRoute>} />
 
-          {/* staff Routes */}
+          {/* Staff Routes */}
           <Route path="/staff/dashboard" element={<ProtectedRoute allowedRoles={['staff','admin']}><StaffDashboard /></ProtectedRoute>} />
           <Route path="/staff/appointments" element={<ProtectedRoute allowedRoles={['staff','admin']}><ManageAppointmentsPage /></ProtectedRoute>} />
           <Route path="/staff/appointments/:appointmentId" element={<ProtectedRoute allowedRoles={['staff','admin']}><AppointmentForm /></ProtectedRoute>} />
@@ -121,7 +122,7 @@ function App() {
 
           <Route path="/staff/invoices/:invoiceId" element={<ProtectedRoute allowedRoles={['staff','admin']}><StaffInvoiceDetailPage /></ProtectedRoute>} />
 
-          {/* technician Routes - With dedicated layout */}
+          {/* Technician Routes - With dedicated layout */}
           <Route
             path="/technician/dashboard"
             element={
@@ -218,7 +219,7 @@ function App() {
             }
           />
 
-          {/* admin Routes - With dedicated layout */}
+          {/* Admin Routes - With dedicated layout */}
           <Route
             path="/admin/dashboard"
             element={
@@ -289,8 +290,18 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/shifts"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminLayout>
+                  <AdminShiftsPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
 
-          {/* fallback */}
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
           <Route
             path="/staff/invoices/:invoiceId"

@@ -25,6 +25,8 @@ const ProfilePage = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [profileData, setProfileData] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -36,6 +38,21 @@ const ProfilePage = () => {
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await customerAPI.getProfile();
+        setProfileData(response.data);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -254,7 +271,8 @@ const ProfilePage = () => {
                 <div className="info-item">
                   <span className="info-label">📅 Ngày tạo:</span>
                   <span className="info-value">
-                    {user?.created_at ? new Date(user.created_at).toLocaleDateString('vi-VN') : 'N/A'}
+                    {loadingProfile ? 'Đang tải...' : 
+                     profileData?.created_at ? new Date(profileData.created_at).toLocaleDateString('vi-VN') : 'N/A'}
                   </span>
                 </div>
               </div>

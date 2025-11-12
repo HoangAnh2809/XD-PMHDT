@@ -1,5 +1,10 @@
 #  Hệ thống Quản lý Bảo dưỡng Xe Điện (EV Maintenance Management System)
 
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18.2+-blue.svg)](https://reactjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Container-Docker-blue.svg)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Hệ thống microservice cho trung tâm bảo dưỡng xe điện: quản lý khách hàng/xe, lịch hẹn, kho phụ tùng, nhân sự, thanh toán, thông báo, và cổng API hợp nhất.
 
@@ -52,15 +57,81 @@ Frontend: React 18, React Router, Axios
 DevOps: Docker, Docker Compose, pgAdmin
 
 
-## ✨ Chức năng nổi bật
 
-- Đăng ký/Đăng nhập, phân quyền (customer, staff, technician, admin)
-- Quản lý xe, đặt lịch bảo dưỡng, theo dõi lịch sử
-- Quản lý kho phụ tùng, tồn kho thấp, điều chỉnh tồn
-- Phân công kỹ thuật viên, quản lý lịch làm việc
-- Hóa đơn, thanh toán VNPay/Momo (mock/real tùy cấu hình)
-- Thông báo email, nhắc lịch
-- Trang quản trị (Admin) với thống kê, CRUD người dùng/chi nhánh/dịch vụ
+## ✨ Chức năng chính theo vai trò
+
+### 1. Chức năng cho Khách hàng (Customer)
+
+- Theo dõi xe, nhận nhắc nhở bảo dưỡng định kỳ (lịch sử, thông báo, nhắc lịch qua email)
+- Đặt lịch dịch vụ online (bảo dưỡng/sửa chữa), chọn trung tâm & loại dịch vụ
+- Xem trạng thái dịch vụ (chờ xác nhận, đang thực hiện, hoàn thành, đã hủy)
+- Quản lý hồ sơ bảo dưỡng, chi phí, hóa đơn
+- Thanh toán online qua VNPay, Momo (tích hợp qua Payment Service)
+- Chat trực tuyến với nhân viên/kỹ thuật viên (realtime, hỗ trợ AI assistant)
+
+### 2. Chức năng cho Nhân viên & Kỹ thuật viên (Staff, Technician)
+
+- Quản lý khách hàng & hồ sơ xe (model, VIN, lịch sử dịch vụ)
+- Tiếp nhận và xử lý yêu cầu đặt lịch, xác nhận/huỷ lịch
+- Quản lý hàng chờ, phân công kỹ thuật viên
+- Theo dõi quy trình bảo dưỡng (chờ, đang làm, hoàn tất)
+- Ghi nhận tình trạng xe, checklist bảo dưỡng, cập nhật kết quả
+- Chat trực tuyến với khách hàng
+
+### 3. Chức năng cho Quản lý/Quản trị viên (Admin)
+
+- Quản lý phụ tùng (theo dõi số lượng, cảnh báo tồn kho thấp, điều chỉnh kho)
+- AI dự đoán nhu cầu phụ tùng thay thế (mức cơ bản, dựa trên lịch sử)
+- Quản lý nhân sự (phân công ca, theo dõi hiệu suất, chứng chỉ EV)
+- Quản lý tài chính (báo giá, hóa đơn, thanh toán, thống kê doanh thu/lợi nhuận)
+- Báo cáo thống kê: doanh thu, lợi nhuận, xu hướng hỏng hóc EV
+
+### 4. Giới hạn & Loại trừ hiện tại
+
+
+## 📋 Bảng WBS (Work Breakdown Structure) dự án
+
+| **WBS Item** | **Độ phức tạp** | **Nỗ lực ước tính (man-days)** |
+| --- | --- | --- |
+| **1. Khởi tạo dự án (Initiating)** |  | **20** |
+| 1.1 Xác định phạm vi dự án | Trung bình | 12 |
+| 1.2 Thu thập yêu cầu | Trung bình | 8 |
+| **2. Lập kế hoạch (Planning)** |  | **14** |
+| 2.1 Tổ chức buổi kick-off | Trung bình | 7 |
+| 2.2 Tạo tài liệu kế hoạch tổng thể | Trung bình | 7 |
+| **3. Thực thi (Executing)** |  |  |
+| 3.1 Phân tích (Analysis) |  | **18** |
+| 3.1.1 Phân tích yêu cầu | Trung bình | 8 |
+| 3.1.2 Phân tích khả thi | Phức tạp | 10 |
+| 3.2 Thiết kế (Design) |  | **16** |
+| 3.2.1 Thiết kế tổng quan hệ thống microservice | Trung bình | 4 |
+| 3.2.2 Thiết kế cơ sở dữ liệu & ERD | Trung bình | 4 |
+| 3.2.3 Thiết kế UI/UX cho web | Trung bình | 4 |
+| 3.2.4 Thiết kế API Gateway và giao tiếp service | Phức tạp | 4 |
+| 3.3 Triển khai (Implementation) |  | **80** |
+| 3.3.1 Dịch vụ khách hàng (Customer Service) |  |  |
+| 3.3.1.1 Theo dõi xe & nhắc bảo dưỡng | Trung bình | 6 |
+| 3.3.1.2 Đặt lịch dịch vụ & theo dõi trạng thái | Phức tạp | 8 |
+| 3.3.1.3 Quản lý hồ sơ & thanh toán | Phức tạp | 8 |
+| 3.3.2 Dịch vụ trung tâm (Staff/Technician/Admin) |  |  |
+| 3.3.2.1 Quản lý khách hàng & xe | Trung bình | 6 |
+| 3.3.2.2 Quản lý lịch hẹn & quy trình bảo dưỡng | Phức tạp | 10 |
+| 3.3.2.3 Quản lý phụ tùng & AI dự báo nhu cầu | Phức tạp | 10 |
+| 3.3.2.4 Quản lý nhân sự & ca làm việc | Trung bình | 6 |
+| 3.3.2.5 Quản lý tài chính & báo cáo doanh thu | Phức tạp | 10 |
+| 3.3.3 Xây dựng hệ thống giao tiếp |  |  |
+| 3.3.3.1 Chat giữa khách hàng và trung tâm | Phức tạp | 6 |
+| 3.3.3.2 Thông báo (notification) đa nền tảng | Trung bình | 4 |
+| 3.3.3.3 Cổng xác thực & phân quyền người dùng | Trung bình | 6 |
+| **3.4 Kiểm thử (Testing)** |  | **24** |
+| 3.4.1 Kiểm thử đơn vị (Unit test) | Phức tạp | 8 |
+| 3.4.2 Kiểm thử tích hợp (Integration test) | Phức tạp | 8 |
+| 3.4.3 Kiểm thử hệ thống (System test) | Phức tạp | 8 |
+| **3.5 Giám sát & kiểm soát (Monitoring & Controlling)** |  | **20** |
+| 3.5.1 Giám sát tiến độ & hiệu suất | Phức tạp | 10 |
+| 3.5.2 Theo dõi chất lượng & rủi ro | Phức tạp | 10 |
+| **3.6 Kết thúc dự án (Closing)** |  | **20** |
+| 3.6.1 Báo cáo & tổng kết | Đơn giản | 20 |
 
 
 ## ⚡ Khởi chạy nhanh (Docker)
@@ -652,7 +723,7 @@ docker logs ev_notification_service --tail 100
 - **Database Tables**: 15+ core tables
 - **API Endpoints**: 50+ REST endpoints
 - **User Roles**: 4 (customer, staff, technician, admin)
-- **Payment Methods**: VNPay
+- **Payment Methods**: 3 (cash, VNPay, Momo)
 - **Container Count**: 11 Docker containers
 
 

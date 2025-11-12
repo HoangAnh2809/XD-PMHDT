@@ -48,7 +48,7 @@ export default function ManagePartsPage() {
       setParts(response.data || []);
     } catch (error) {
       console.error('Error loading parts:', error);
-      // use mock data if API fails
+      // Use mock data if API fails
       setParts([
         { id: 1, name: 'Dầu động cơ 5W-30', part_number: 'EO-5W30-001', category: 'Dầu nhớt', manufacturer: 'Castrol', unit_price: 250000, quantity_in_stock: 45, minimum_stock_level: 20, supplier: 'Auto Parts Supply', location: 'A-1-01' },
         { id: 2, name: 'Má phanh trước', part_number: 'BP-FR-002', category: 'Phanh', manufacturer: 'Brembo', unit_price: 850000, quantity_in_stock: 12, minimum_stock_level: 15, supplier: 'Brake World', location: 'B-2-03' },
@@ -142,7 +142,7 @@ export default function ManagePartsPage() {
     e.preventDefault();
     
     try {
-      // prepare data to match backend schema
+      // Prepare data to match backend schema
       const partData = {
         part_number: formData.part_number,
         name: formData.name,
@@ -152,14 +152,14 @@ export default function ManagePartsPage() {
         quantity_in_stock: parseInt(formData.quantity_in_stock) || 0,
         minimum_stock_level: parseInt(formData.minimum_stock_level) || 10,
         supplier: formData.supplier || null,
-        compatible_models: null  // backend expects this field
+        compatible_models: null  // Backend expects this field
       };
 
       if (modalMode === 'add') {
         await staffAPI.createPart(partData);
         alert('Thêm phụ tùng thành công!');
       } else {
-        // for update, don't include part_number
+        // For update, don't include part_number
         const { part_number, ...updateData } = partData;
         await staffAPI.updatePart(selectedPart.id, updateData);
         alert('Cập nhật phụ tùng thành công!');
@@ -216,7 +216,7 @@ export default function ManagePartsPage() {
           </button>
         </div>
 
-        {/* summary Statistics */}
+        {/* Summary Statistics */}
         <div className="parts-stats-grid">
           <div className="parts-stat-card">
             <div className="stat-icon">📦</div>
@@ -254,7 +254,7 @@ export default function ManagePartsPage() {
           </div>
         </div>
 
-        {/* filters */}
+        {/* Filters */}
         <div className="card">
           <div className="search-bar">
             <input
@@ -288,7 +288,7 @@ export default function ManagePartsPage() {
             </div>
           </div>
 
-          {/* parts Table */}
+          {/* Parts Table */}
           <div className="table-responsive">
             <table className="data-table">
               <thead>
