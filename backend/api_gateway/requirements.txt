@@ -13,3 +13,5 @@ pydantic==2.5.0
 pydantic-settings==2.1.0
 email-validator==2.1.0
 websockets==12.0
+psutil==5.9.6
+phonenumbers==8.13.30

@@ -546,7 +546,7 @@ def join_session_as_staff(
         session_id=session_id,
         user_id=current_user['user_id'],
         user_type=current_user.get('role') or 'staff',
-        role='support'
+        role='member'
     )
     db.add(participant)
     

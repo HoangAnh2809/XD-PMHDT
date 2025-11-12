@@ -851,6 +851,74 @@ async def vnpay_ipn(request: Request, db: Session = Depends(get_db)):
     else:
         return {"RspCode": "99", "Message": "Yêu cầu không hợp lệ"}
 
+@app.post("/payments/test/callback/{payment_id}")
+async def test_vnpay_callback(
+    payment_id: str,
+    success: bool = True,
+    db: Session = Depends(get_db)
+):
+    """
+    Test endpoint to manually trigger VNPay callback for development
+    This simulates what VNPay would send when payment is completed
+    """
+    payment = db.query(Payment).filter(Payment.id == payment_id).first()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    invoice = db.query(Invoice).filter(Invoice.id == payment.invoice_id).first()
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    # Simulate VNPay callback data
+    callback_data = {
+        'vnp_TmnCode': VNPAY_TMN_CODE,
+        'vnp_Amount': str(int(payment.amount * 100)),  # Convert to VND smallest unit
+        'vnp_BankCode': 'NCB',
+        'vnp_BankTranNo': '20251027170000',
+        'vnp_CardType': 'ATM',
+        'vnp_OrderInfo': f'Payment for invoice {invoice.invoice_number}',
+        'vnp_PayDate': datetime.now().strftime('%Y%m%d%H%M%S'),
+        'vnp_ResponseCode': '00' if success else '10',  # 00 = success, 10 = failed
+        'vnp_TmnCode': VNPAY_TMN_CODE,
+        'vnp_TransactionNo': f'test-{payment_id[:8]}',
+        'vnp_TxnRef': payment_id,
+        'vnp_SecureHashType': 'SHA512'
+    }
+    
+    # Create signature for test data
+    vnp = VNPay()
+    vnp.requestData = callback_data.copy()
+    # Remove hash fields for signing
+    if 'vnp_SecureHash' in vnp.requestData:
+        del vnp.requestData['vnp_SecureHash']
+    if 'vnp_SecureHashType' in vnp.requestData:
+        del vnp.requestData['vnp_SecureHashType']
+    
+    # Generate hash
+    hash_data = "&".join([f"{k}={urllib.parse.quote_plus(str(v))}" for k, v in sorted(vnp.requestData.items()) if str(k).startswith('vnp_')])
+    callback_data['vnp_SecureHash'] = hmac.new(VNPAY_HASH_SECRET.encode(), hash_data.encode(), hashlib.sha512).hexdigest()
+    
+    # Now call the actual callback handler
+    from fastapi import Request as FastAPIRequest
+    from starlette.requests import Request as StarletteRequest
+    
+    # Create a mock request with the callback data as query params
+    class MockRequest:
+        def __init__(self, query_params):
+            self.query_params = query_params
+    
+    mock_request = MockRequest(callback_data)
+    
+    # Call the IPN handler
+    result = await vnpay_ipn(mock_request, db)
+    
+    return {
+        "message": f"Test callback {'successful' if success else 'failed'} for payment {payment_id}",
+        "callback_data": callback_data,
+        "result": result,
+        "invoice_status": invoice.payment_status
+    }
+
 @app.post("/payments/vnpay/query")
 async def query_vnpay_payment(
     payment_id: str,

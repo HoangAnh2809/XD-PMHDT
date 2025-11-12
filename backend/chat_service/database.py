@@ -9,7 +9,7 @@ import os
 # Database URL - use environment variable or default
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "sqlite:///./chat_service.db"  # Use SQLite for local development
+    "postgresql://evadmin:evadmin123@localhost:5432/ev_maintenance"  # Use PostgreSQL like other services
 )
 
 # Create SQLAlchemy engine with connection health checks to avoid using closed

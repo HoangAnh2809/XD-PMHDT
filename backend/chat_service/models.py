@@ -43,9 +43,9 @@ class ChatSession(Base):
     __tablename__ = "chat_sessions"
     
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    session_type = Column(Enum(SessionType), nullable=False)
+    session_type = Column(String(50), nullable=False)  # VARCHAR with CHECK constraint
     title = Column(String(200))
-    status = Column(Enum(SessionStatus), default=SessionStatus.ACTIVE)
+    status = Column(String(50), default=SessionStatus.ACTIVE.value)  # VARCHAR with CHECK constraint
     created_by = Column(String(100), nullable=False)  # user_id of creator
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)

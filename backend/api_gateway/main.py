@@ -7,7 +7,7 @@ import sys
 import os
 import logging
 
-# add parent directory to path for imports
+# Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from shared.database import get_db, engine
@@ -23,7 +23,7 @@ from shared.auth import (
 from schemas import UserCreate, UserResponse, Token, UserLogin
 import httpx
 
-# create tables
+# Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="EV Maintenance API Gateway", version="1.0.0")
@@ -34,7 +34,7 @@ logger = logging.getLogger('api_gateway')
 # CORS middleware - Must be configured before any routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all origins for development
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
@@ -42,7 +42,7 @@ app.add_middleware(
     max_age=3600,
 )
 
-# additional CORS headers middleware
+# Additional CORS headers middleware
 @app.middleware("http")
 async def add_cors_headers(request, call_next):
     response = await call_next(request)
@@ -52,7 +52,7 @@ async def add_cors_headers(request, call_next):
     response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
 
-# service URLs
+# Service URLs
 CUSTOMER_SERVICE_URL = os.getenv("CUSTOMER_SERVICE_URL", "http://localhost:8001")
 SERVICE_CENTER_URL = os.getenv("SERVICE_CENTER_URL", "http://localhost:8002")
 CHAT_SERVICE_URL = os.getenv("CHAT_SERVICE_URL", "http://localhost:8003")
@@ -77,7 +77,7 @@ async def root():
 
 @app.post("/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    # check if user exists
+    # Check if user exists
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
         raise HTTPException(
@@ -85,17 +85,17 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
     
-    # auto-generate username from email (part before @)
+    # Auto-generate username from email (part before @)
     username = user_data.email.split('@')[0]
     
-    # check if username already exists, if so, append numbers
+    # Check if username already exists, if so, append numbers
     base_username = username
     counter = 1
     while db.query(User).filter(User.username == username).first():
         username = f"{base_username}{counter}"
         counter += 1
     
-    # create user
+    # Create user
     db_user = User(
         email=user_data.email,
         username=username,
@@ -108,7 +108,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
     
-    # create role-specific profile
+    # Create role-specific profile
     if user_data.role == "customer":
         customer = Customer(user_id=db_user.id)
         db.add(customer)
@@ -161,8 +161,34 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 
 @app.post("/auth/login-json", response_model=Token)
 async def login_json(user_login: UserLogin, db: Session = Depends(get_db)):
+    logger.info("Login-json attempt for email=%s", user_login.email)
     user = db.query(User).filter(User.email == user_login.email).first()
-    if not user or not verify_password(user_login.password, user.password_hash):
+    if not user:
+        logger.info("Login-json: user not found for email=%s", user_login.email)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password"
+        )
+
+    # Log a short prefix of password_hash for debugging malformed hashes
+    try:
+        ph_sample = (user.password_hash[:40] + '...') if user.password_hash else '<none>'
+        logger.info("Login-json: found user id=%s role=%s password_hash_prefix=%s", str(user.id), user.role, ph_sample)
+    except Exception as e:
+        logger.exception("Error reading password_hash for user %s: %s", user_login.email, e)
+
+    try:
+        pw_ok = verify_password(user_login.password, user.password_hash)
+    except Exception as e:
+        # Log exception details to help trace 'Invalid salt' errors
+        logger.exception("Password verification error for user %s: %s", user_login.email, e)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password"
+        )
+
+    if not pw_ok:
+        logger.info("Login-json: invalid credentials for email=%s", user_login.email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
@@ -198,7 +224,7 @@ async def get_current_user_info(request: Request, db: Session = Depends(get_db))
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.split(" ")[1]
     else:
-        # check for token in query params
+        # Check for token in query params
         token = request.query_params.get("token")
     
     if not token:
@@ -208,7 +234,7 @@ async def get_current_user_info(request: Request, db: Session = Depends(get_db))
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # decode and validate token
+    # Decode and validate token
     payload = decode_access_token(token)
     if payload is None:
         raise HTTPException(
@@ -230,7 +256,7 @@ async def get_current_user_info(request: Request, db: Session = Depends(get_db))
         is_active=user.is_active
     )
 
-# proxy endpoints to microservices
+# Proxy endpoints to microservices
 async def proxy_request(url: str, method: str = "GET", headers: dict = None, json_data: dict = None, params: dict = None):
     async with httpx.AsyncClient(timeout=30.0) as client:
         try:
@@ -317,27 +343,77 @@ async def proxy_service_center(path: str, request: Request):
     if "token" in params:
         del params["token"]
     
-    body = None
-    if request.method in ["POST", "PUT", "PATCH"]:
+    # Check if this is a multipart request (FormData)
+    content_type = request.headers.get("content-type", "")
+    is_multipart = content_type.startswith("multipart/form-data")
+    
+    if is_multipart:
+        # For multipart requests, forward the raw body
+        body_bytes = await request.body()
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            try:
+                headers["Content-Type"] = content_type
+                # Use data parameter for multipart form data
+                response = await client.request(
+                    method=request.method,
+                    url=url,
+                    headers=headers,
+                    content=body_bytes,
+                    params=params
+                )
+                
+                try:
+                    content = response.json()
+                except:
+                    content = {"error": "Invalid response", "status": response.status_code}
+                
+                return JSONResponse(content=content, status_code=response.status_code)
+            except httpx.TimeoutException:
+                raise HTTPException(status_code=504, detail="Service timeout")
+            except httpx.RequestError as e:
+                raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+    else:
+        # For JSON requests, parse as JSON
+        body = None
+        if request.method in ["POST", "PUT", "PATCH"]:
+            try:
+                body = await request.json()
+            except:
+                pass
+        
+        response = await proxy_request(
+            url,
+            method=request.method,
+            headers=headers,
+            json_data=body,
+            params=params
+        )
+        
         try:
-            body = await request.json()
+            content = response.json()
         except:
-            pass
+            content = {"error": "Invalid response", "status": response.status_code}
+        
+        return JSONResponse(content=content, status_code=response.status_code)
+
+# Static Files Proxy Route for Service Center uploads
+@app.api_route("/uploads/{path:path}", methods=["GET"])
+async def proxy_service_center_uploads(path: str, request: Request):
+    """Proxy /uploads/* requests to service center service for static files"""
+    url = f"{SERVICE_CENTER_URL}/uploads/{path}"
     
-    response = await proxy_request(
-        url,
-        method=request.method,
-        headers=headers,
-        json_data=body,
-        params=params
+    # For static files, we don't need authentication
+    response = await proxy_request(url, method="GET")
+    
+    # Return the raw response for static files
+    from fastapi.responses import Response
+    return Response(
+        content=response.content,
+        status_code=response.status_code,
+        headers=dict(response.headers)
     )
-    
-    try:
-        content = response.json()
-    except:
-        content = {"error": "Invalid response", "status": response.status_code}
-    
-    return JSONResponse(content=content, status_code=response.status_code)
 
 # Chat Service Proxy Routes (including WebSocket)
 @app.api_route("/chat/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
